@@ -1,4 +1,4 @@
-# Controle Financeiro App
+# MyTapp App
 
 Projeto transações financeira, com a backend e frontend.
 
