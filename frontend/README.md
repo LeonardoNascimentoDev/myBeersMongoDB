@@ -1,5 +1,5 @@
 # MyTapp App React JS
-> Frontend do projeto Controle Financeiro.
+> Frontend do projeto mytapp.
 
 
 ## Layout
