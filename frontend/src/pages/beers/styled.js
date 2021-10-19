@@ -9,7 +9,7 @@ export const Header = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: 60px;
+  height: auto;
   padding: 25px 10px;
   justify-content: space-between;
   background-color: #FFF;
@@ -101,14 +101,14 @@ export const Body = styled.div`
   flex-basis: 100%;
   height: 100%;
   background-color: #F2F2F2;
+  box-sizing: box-content;
 `;
 
 export const BodyHeader = styled.div`
   /* border: 2px solid blue; */
-  width: 100%;
-  display: flex;
+  width: 100%; 
   height: 45px;
-  margin: 10px 5px;
+  margin: 10px 0;
   padding: 0 10px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -201,6 +201,11 @@ export const ContainerTransacoesListWrapperFoto = styled.img`
   width: 20px;
   flex-basis: 80px;
   height: max-content;
+  &.noPhoto {
+    width: 45px;
+    height: 45px;
+    flex-basis: initial;
+  }
 `;
 
 export const ContainerTransacoesListWrapperTitle = styled.h2`
@@ -242,7 +247,7 @@ export const Paginate = styled.div`
   flex-wrap: wrap;
   width: 100%;
   flex-basis: 100%;
-  margin: 22px;
+  margin: 22px 0;
 `;
 
 export const PaginateItem = styled.div`
