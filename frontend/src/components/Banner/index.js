@@ -6,21 +6,35 @@ import {
   ImgProduct,
   ImgBox,
   BoxProduct,
-  TitleProduct
+  TitleProduct,
+  WrapperProduct
 } from './styled';
 
 import { GET } from '../../services';
 
 const Banner = ({handleClick}) => { 
 
-  const [productRandom, setProductRandom] = useState(); 
+  const [productRandom, setProductRandom] = useState();  
+
+  const getProducts = async() => {
+    const response = await GET(`api/v1/beers/random`); 
+    console.log('getprodu', response)
+    const responseResolved = await response.json(); 
+    console.log('getprodu', responseResolved)
+    return responseResolved;
+  }
  
   const handleGetProducts = async () => {
-    try { 
-      const response = await GET(`api/v1/beers/random`); 
-      const responseResolved = await response.json(); 
-      if (responseResolved?.length) {   
-        setProductRandom(responseResolved[0]);
+    try {
+      const highlight = []
+      while (highlight.length < 2) {
+        let _prod = await getProducts()
+        if (_prod[0].image_url) {
+          highlight.push(_prod[0])
+        }
+      }  
+      if (highlight?.length) {   
+        setProductRandom(highlight);
       }
     } catch (error) {
       console.log(error);
@@ -31,20 +45,32 @@ const Banner = ({handleClick}) => {
     handleGetProducts()
   }, []) 
 
-  const handleClickProduct = () => {
-    handleClick('read', productRandom)
-  }
- 
+  useEffect(() => {
+    if(productRandom?.length > 0) {
+      setTimeout(() => {
+        handleGetProducts()
+      }, 5000); 
+    }
+  }, [productRandom]) 
+
+  const handleClickProduct = (item) => {
+    handleClick('read', item)
+  }   
+  
   return (
     <>
-      {productRandom && productRandom?.image_url && (
+      {productRandom?.length > 0 && (
         <ContainerBanner> 
-          <BannerTitle>Produto em destaque</BannerTitle> 
-          <BoxProduct onClick={() => handleClickProduct()}>
-            <ImgBox style={{ 
-                backgroundImage: `url(${productRandom.image_url})` 
-              }}></ImgBox>
-            <TitleProduct>{productRandom?.name}</TitleProduct>
+          <BannerTitle>Produtos em destaque</BannerTitle> 
+          <BoxProduct>
+            { productRandom.map((item, i) => (
+              <WrapperProduct key={i} onClick={() => handleClickProduct(item)}>
+                <ImgBox style={{ 
+                    backgroundImage: `url(${item.image_url})` 
+                  }}></ImgBox>
+                <TitleProduct>{item?.name}</TitleProduct>
+              </WrapperProduct>
+            ))} 
           </BoxProduct>
         </ContainerBanner>
       )} 

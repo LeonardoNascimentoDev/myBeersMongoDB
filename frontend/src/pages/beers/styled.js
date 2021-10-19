@@ -232,11 +232,35 @@ export const ContainerTransacoesListWrapperSobre = styled.p`
   text-align: center;
 `;
 
-export const Message = styled.p`
-  color: black;
+export const Message = styled.p` 
   text-align: center;
   font-weight: bold;
   font-size: 17px;
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
+  font-size: 17px;
+  position: fixed;
+  bottom: 20px;
+  right: 0;
+  z-index: 20;
+  height: 80px; 
+  background: #ef0f0f;
+  padding: 0;
+  margin: 0;
+  border-radius: 10px 0 0 10px;  
+  align-items: center; 
+  display: flex;
+  width: 0;  
+  label {
+    min-width: 350px;
+  }
+  &.active { 
+    transition: all 1s ease;
+    width: 350px;  
+    right: 0;  
+    -webkit-transform: translate(-0%, 2%);
+  }    
 `;
 
 export const Paginate = styled.div`

@@ -154,14 +154,25 @@ const BeersPage = () => {
   const [viewModalCrud, setViewModalCrud] = useState(false);
   const [typeModalCrud, setTypeModalCrud] = useState(null);
   const [dataTransaction, setDataTransaction] = useState(null);
-
-  const handleOpenModalCrud = (type, empresa) => { 
-    setViewModalCrud(true);
-    setTypeModalCrud(type);
-    if (empresa) setDataTransaction(empresa);
-  }
-
   const [message, setMessage] = useState(null);
+
+  const handleOpenModalCrud = async(type, empresa) => { 
+    try {
+      const idEmpresa = empresa?.id; 
+      const response = await GET(`api/v1/beers/${idEmpresa}`); 
+      const responseResolved = await response.json(); 
+      if (responseResolved?.length > 0) { 
+        setDataTransaction(responseResolved[0]);
+        setViewModalCrud(true);
+        setTypeModalCrud(type); 
+      } else {
+        setMessage('Não foi possivel recuperar os dados do produto!'); 
+        setTimeout(() => setMessage(null), 3000);
+      } 
+    } catch (error) {
+      console.log(error)
+    } 
+  } 
   const handleCloseModalCrud = (refresh, messageCrud) => {
     setViewModalCrud(false);
     setTypeModalCrud(null);
@@ -225,7 +236,6 @@ const BeersPage = () => {
       return (<ContainerTransacoesListWrapperFoto src={image} />)
     }
     return (<ContainerTransacoesListWrapperFoto className="noPhoto" src="http://localhost:3000/no-photo.jpg" alt="Sem foto"  />)
-    
   }
 
   /**
@@ -264,9 +274,7 @@ const BeersPage = () => {
             <BodyHeaderColLefth>
               <BodyHeaderTitle>MyTapp</BodyHeaderTitle>
             </BodyHeaderColLefth>
-          </BodyHeader>
-
-          {message && (<Message>{message}</Message>)}
+          </BodyHeader> 
           
           <ContainerTransacoesList>
             {TransacoesList.map((empresa, i) => (
@@ -296,8 +304,9 @@ const BeersPage = () => {
           handleType={setTypeModalCrud}
           handleClose={handleCloseModalCrud}
           dataTransaction={dataTransaction}
-          />
+        />
       )}
+      <Message className={message ? "active": ""}><label>{message}</label></Message>
     </Page>
   )
 }
@@ -312,75 +321,4 @@ export default BeersPage;
       ))}
     </Paginate>
   )}
-*/
-
-/*
-<Page>
-      <Container>
-        <Header>
-          <HeaderColLeft>
-            <Brand src="http://localhost:3000/logo192.png" alt="Brand" />
-          </HeaderColLeft>
-          <HeaderColCenter>
-            <Search placeholder="Pesquisar..." onChange={(e) => setSearchValue(e?.target?.value)}/>
-            {resultSearch && (
-              <ResultSearch onClick={() => handleOpenModalCrud('read', resultSearch)}>
-                <ResultSearchTitle>{resultSearch?.name}</ResultSearchTitle>
-                <ResultSearchSobre>{resultSearch?.description}</ResultSearchSobre>
-              </ResultSearch>
-            )}
-          </HeaderColCenter>
-          <HeaderColRight>
-             <Profile>
-              <ProfileAvatar src="http://localhost:3000/logo192.png" alt="Profile user avatar" />
-              <ProfileUser>{username }</ProfileUser>
-             </Profile>
-             <BodyHeaderColRight>
-              <Button onClick={() => handleExitSession()}>Sair</Button>
-            </BodyHeaderColRight>
-          </HeaderColRight>
-        </Header>
-        <Body>
-          <Banner />
-          <BodyHeader>
-            <BodyHeaderColLefth>
-              <BodyHeaderTitle>MyTapp</BodyHeaderTitle>
-            </BodyHeaderColLefth>
-          </BodyHeader>
-
-          {message && (<Message>{message}</Message>)}
-          
-          <ContainerTransacoesList>
-            {TransacoesList.map((empresa, i) => (
-              <ContainerTransacoesListWrapper key={String(i)} onClick={() => handleOpenModalCrud('read', empresa)}>
-                <ContentTransacoesListWrapper>
-                  <ContainerTransacoesListWrapperHeader>
-                    <ContainerTransacoesListWrapperFoto src={empresa.image_url} />
-                  </ContainerTransacoesListWrapperHeader>
-                  <ContainerTransacoesListWrapperBody>
-                    <ContainerTransacoesListWrapperTitle>{empresa.name}</ContainerTransacoesListWrapperTitle>
-                    <ContainerTransacoesListWrapperSobre>{empresa.description}</ContainerTransacoesListWrapperSobre>
-                  </ContainerTransacoesListWrapperBody>
-                  </ContentTransacoesListWrapper>
-              </ContainerTransacoesListWrapper>
-            ))}
-          </ContainerTransacoesList>
-        </Body>
-
-        {paginate?.pages > 1 && (
-          <Paginate className='paginate'> 
-            {renderPaginate()}
-          </Paginate>
-        )}
-      </Container>
-
-      {viewModalCrud && (
-        <ModalCrud 
-          type={typeModalCrud}
-          handleType={setTypeModalCrud}
-          handleClose={handleCloseModalCrud}
-          dataTransaction={dataTransaction}
-          />
-      )}
-    </Page>
-    */
+*/ 

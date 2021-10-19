@@ -31,6 +31,12 @@ export const BoxProduct = styled.div`
   align-items: center;
 `;
 
+export const WrapperProduct = styled.div`
+  display: flex;
+  align-items: center;
+  width: 50%;
+`;
+
 export const ImgBox = styled.div`
   border: none;
   width: 80px;
