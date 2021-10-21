@@ -35,7 +35,8 @@ import {
   PaginateItem,
   ResultSearch,
   ResultSearchTitle,
-  ResultSearchSobre
+  ResultSearchSobre,
+  MessageLabel,
 } from './styled';
 
 import ModalCrud from './components/ModalCrud';
@@ -81,10 +82,13 @@ const BeersPage = () => {
   */
 
   const [paginate, setPaginate] = useState({
-    currentPage: 0
+    currentPage: 0,  
   });
 
-  const [TransacoesList, setTransacoesList] = useState([]); 
+  const [TransacoesList, setTransacoesList] = useState({
+      listProducts: [],
+      listPages: null
+  }); 
 
   const perPage = 40;
 
@@ -136,7 +140,7 @@ const BeersPage = () => {
     const currentPage = paginate.currentPage;
     if (currentPage > 1) {
       if (currentPage > 1) {
-        pages.push(paginateItem(paginate.currentPage - 1, 'ant'))
+        pages.push(paginateItem(paginate.currentPage - 1, '<<'))
       }    
       pages.push(paginateItem(paginate.currentPage - 1))
     }
@@ -146,18 +150,29 @@ const BeersPage = () => {
         pages.push(paginateItem(paginate.currentPage + 1))    
       }
       if (await checkPage(paginate.currentPage + 2)) {
-        pages.push(paginateItem(paginate.currentPage + 2, 'próx'))    
+        pages.push(paginateItem(paginate.currentPage + 2, '>>'))    
       }
     }
-    setListPages(pages);
+    return pages;
+    //setListPages(pages);
   }
 
   const handleGetBeers = async () => {
     try {
       const _result = await getBeers(paginate.currentPage); 
       if (_result?.length) {
-        setTransacoesList(_result);
-        resolvePaginate(); 
+        const _pagesNumbers = await resolvePaginate(); 
+        setTransacoesList({
+          ...TransacoesList,
+          listProducts: _result,
+          listPages: _pagesNumbers
+        })   
+      } else {
+        setTransacoesList({
+          ...TransacoesList,
+          listProducts:[],
+          listPages: null,
+        })  
       }
     } catch (error) {
       console.log(error);
@@ -214,7 +229,7 @@ const BeersPage = () => {
     if (refresh) handleGetBeers();
   }
 
-  const handlePaginate = (page) => { 
+  const handlePaginate = (page) => {   
     try { 
       setPaginate({
         ...paginate,
@@ -231,7 +246,8 @@ const BeersPage = () => {
   } 
  
   const renderPages = () => {
-    return listPages;
+    console.log('asdfasd', TransacoesList?.listPages)
+    return TransacoesList?.listPages;
   }
 
   /*image*/
@@ -254,18 +270,38 @@ const BeersPage = () => {
     });
   };
 
-  const handleSubmitSearch = (event) => {
-    console.log('A name was submitted: ' + JSON.stringify(formData));
+  const handleSubmitSearch = (event) => { 
     handleGetBeers();
     event.preventDefault();
   }
 
-  useEffect(() => {
-      console.log('formData', formData)
+  useEffect(() => { 
+    if (formData) {
+      handlePaginate(1);
+    } 
   }, [formData])
   /**
    * Render
   */
+
+  const renderPagesProducts = () => {
+    if (TransacoesList?.listProducts.length <= 0) {
+      return (<MessageLabel>Nenhum produto encontrado!</MessageLabel>)
+    } 
+    return (TransacoesList?.listProducts.map((empresa, i) => (
+      <ContainerTransacoesListWrapper key={String(i)} onClick={() => handleOpenModalCrud('read', empresa)}>
+        <ContentTransacoesListWrapper>
+          <ContainerTransacoesListWrapperHeader>
+            {renderImage(empresa.image_url)}
+          </ContainerTransacoesListWrapperHeader>
+          <ContainerTransacoesListWrapperBody>
+            <ContainerTransacoesListWrapperTitle>{empresa.name}</ContainerTransacoesListWrapperTitle>
+            <ContainerTransacoesListWrapperSobre>{empresa.description}</ContainerTransacoesListWrapperSobre>
+          </ContainerTransacoesListWrapperBody>
+          </ContentTransacoesListWrapper>
+      </ContainerTransacoesListWrapper>
+    )))
+  }
 
   return (
     <Page>
@@ -275,7 +311,7 @@ const BeersPage = () => {
             <Brand src="http://localhost:3000/logo192.png" alt="Brand" />
           </HeaderColLeft> 
           <HeaderColCenter>
-            <form onSubmit={handleSubmitSearch}>
+            <form>
               <SearchBox>
                 <Search 
                   type="number" 
@@ -367,8 +403,7 @@ const BeersPage = () => {
                   name="brewed_after"
                   onChange={handleChange}
                 />
-              </SearchBox>
-              <Button type="submit">Pesquisar</Button>
+              </SearchBox> 
             </form>
             {resultSearch && (
               <ResultSearch onClick={() => handleOpenModalCrud('read', resultSearch)}>
@@ -396,19 +431,7 @@ const BeersPage = () => {
           </BodyHeader> 
           
           <ContainerTransacoesList>
-            {TransacoesList.map((empresa, i) => (
-              <ContainerTransacoesListWrapper key={String(i)} onClick={() => handleOpenModalCrud('read', empresa)}>
-                <ContentTransacoesListWrapper>
-                  <ContainerTransacoesListWrapperHeader>
-                    {renderImage(empresa.image_url)}
-                  </ContainerTransacoesListWrapperHeader>
-                  <ContainerTransacoesListWrapperBody>
-                    <ContainerTransacoesListWrapperTitle>{empresa.name}</ContainerTransacoesListWrapperTitle>
-                    <ContainerTransacoesListWrapperSobre>{empresa.description}</ContainerTransacoesListWrapperSobre>
-                  </ContainerTransacoesListWrapperBody>
-                  </ContentTransacoesListWrapper>
-              </ContainerTransacoesListWrapper>
-            ))}
+            {renderPagesProducts()} 
           </ContainerTransacoesList>
           {paginate?.currentPage > 0 && (
             <Paginate className='paginate'> 

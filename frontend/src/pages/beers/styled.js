@@ -343,3 +343,11 @@ export const ResultSearchSobre = styled.p`
   overflow: hidden;
   width: 100%;
 `;
+
+export const MessageLabel = styled.label`
+  padding: 50px 0; 
+  width: 100%; 
+  display: flex;
+  justify-content: center;
+`;
+ 
