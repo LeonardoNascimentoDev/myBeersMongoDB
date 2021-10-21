@@ -13,6 +13,7 @@ export const Header = styled.div`
   padding: 25px 10px;
   justify-content: space-between;
   background-color: #FFF;
+  align-items: flex-start;
 `;
 
 export const HeaderColLeft = styled.div`
@@ -37,8 +38,8 @@ export const HeaderColCenter = styled.div`
   padding: 5px 50px;
 
   @media (min-width: 35em) {
-    width: 70%;
-    flex-basis: 70%;
+    width: 100%;
+    flex-basis: 100%;
   }
 `;
 
@@ -91,7 +92,29 @@ export const ProfileUser = styled.span`
   }
 `;
 
-export const Search = styled(Input)``;
+export const SearchBox = styled.div`
+
+`;
+export const Search = styled(Input)`
+  background: #FFF;
+  border: 1px solid #CFCFCF;
+  padding: 8px 10px;
+  margin: 10px;
+  &[type=number]::-webkit-inner-spin-button { 
+    -webkit-appearance: none;
+  }
+  &[type=number] {
+    width: 150px;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  &[type=text] {
+    width: 250px;
+  }
+  &[type=date] {
+    width: 200px;
+  }
+`;
 
 export const Body = styled.div`
   /* border: 2px solid blue; */

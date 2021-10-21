@@ -15,6 +15,7 @@ import {
   HeaderColRight, 
   Brand, 
   Search,
+  SearchBox,
   Profile,
   ProfileAvatar,
   ProfileUser,
@@ -42,6 +43,11 @@ import { GET } from '../../services';
 
 const BeersPage = () => {
 
+  const [formData, setFormData] = useState();
+  const [listPages, setListPages] = useState(null);
+  const [searchValue, setSearchValue] = useState(null);
+  const [resultSearch, setResultSearch] = useState(null);
+ 
   const username = JSON.parse(sessionStorage.getItem('username'))
 
   const history = useHistory();
@@ -56,15 +62,12 @@ const BeersPage = () => {
     history.push('/login')          
   }
 
-  const [searchValue, setSearchValue] = useState(null);
-  const [resultSearch, setResultSearch] = useState(null);
+  /*
   const handleSearch = async () => {
-    try {
-      console.log('handleSearch target...');
+    try { 
       if (searchValue) {
-        const response = await GET(`api/v1/transaction-search/${searchValue}`);
-        const responseResult = await response.json();
-        console.log('handleSearch responseResult:', responseResult);
+        const response = await GET(`api/v1/transaction-search/${searchValue}`); 
+        const responseResult = await response.json();  
         setResultSearch(responseResult);
       }
     } catch (error) {
@@ -75,61 +78,86 @@ const BeersPage = () => {
   useEffect(() => {
     if (searchValue) handleSearch();
   }, [searchValue])
+  */
 
   const [paginate, setPaginate] = useState({
-    total: 325,
-    pages: 9, 
     currentPage: 0
   });
 
-  const [TransacoesList, setTransacoesList] = useState([]);
-  const [transacoesResponse, setTransacoesResponse] = useState([]);
+  const [TransacoesList, setTransacoesList] = useState([]); 
 
-  const perPage = paginate?.currentPage > 8 ? 5 : 40;
+  const perPage = 40;
+
+  const getBeers = async(page) => {
+    try {
+      let queryString = "";
+      const searchParams = new URLSearchParams();
+      if (formData) {
+        Object.keys(formData).forEach(key => {
+          if(formData[key]) {
+            searchParams.append(key, formData[key])
+          } 
+        });
+        if (searchParams.toString()) {
+          queryString = `&${searchParams.toString()}`
+        } 
+      } 
+      const response = await GET(`api/v1/beers?page=${page}&per_page=${perPage}${queryString}`);
+      const responseResolved = await response.json(); 
+      return responseResolved;
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  //verifica pagina
+  async function checkPage(page) {
+    const _result = await getBeers(page);
+    if (_result?.length > 0) {
+      return true;
+    } 
+    return false; 
+  }
+
+  //paginate item
+  const paginateItem = (number, label) => {
+    return (<PaginateItem 
+        key={label || number} 
+        className={paginate.currentPage === number ? 'selected' : ''} 
+        onClick={() => handlePaginate(number)}
+      > {label || number}
+      </PaginateItem> 
+    )
+  }
+
+  //paginacao
+  const resolvePaginate = async() => {
+    let pages = [];
+    const currentPage = paginate.currentPage;
+    if (currentPage > 1) {
+      if (currentPage > 1) {
+        pages.push(paginateItem(paginate.currentPage - 1, 'ant'))
+      }    
+      pages.push(paginateItem(paginate.currentPage - 1))
+    }
+    pages.push(paginateItem(paginate.currentPage))
+    if (currentPage > 0) {
+      if (await checkPage(paginate.currentPage + 1)) {
+        pages.push(paginateItem(paginate.currentPage + 1))    
+      }
+      if (await checkPage(paginate.currentPage + 2)) {
+        pages.push(paginateItem(paginate.currentPage + 2, 'próx'))    
+      }
+    }
+    setListPages(pages);
+  }
 
   const handleGetBeers = async () => {
     try {
-      console.log('paginate', paginate)
-      const response = await GET(`api/v1/beers?page=${paginate.currentPage}&per_page=${perPage}`);
-      console.log('handleGetBeers response:', response);
-      const responseResolved = await response.json();
-      console.log('handleGetBeers responseResolved:', responseResolved);
-      setTransacoesResponse(responseResolved);
-
-      if (responseResolved?.length) {
-        const result = responseResolved; 
-        //* eu comentei pq aqui ele pega as paginas e add na paginate
-        //* funciona quando traz todas as paginas, e não precisa mais buscar
-        //* e vc trabalha a paginaçao com elas, nesse caso ele traz apenas 25 por vex
-
-        // Resolve a paginação
-        //const currentPage = paginate;
-        //console.log('resolve length:',responseResolved.length);
-        //const numPages = Math.ceil(responseResolved.length / perPage);
-        //const numPages = responseResolved.length;
-        //console.log('handleGetBeers numPages:', numPages);
-        //const pages = []
-        //console.log('handleGetBeers pages:', pages);
-
-        /*for (let index = 1; index < numPages; index++) { 
-          pages.push({text: index});
-        }*/
-
-        //const init = 0; // currentPage * perPage;
-        //const end = init + perPage
-        //console.log('handleGetBeers init:', init);
-        //console.log('handleGetBeers end:', end);
-        //const result = responseResolved.slice(init, end);
-        //console.log('handleGetBeers result:', result);
-        //console.log('result', result)
-        /*
-        setPaginate({
-          pages,
-          currentPage
-        });
-        */
-        // Set resultado inicial
-        setTransacoesList(result);
+      const _result = await getBeers(paginate.currentPage); 
+      if (_result?.length) {
+        setTransacoesList(_result);
+        resolvePaginate(); 
       }
     } catch (error) {
       console.log(error);
@@ -186,26 +214,12 @@ const BeersPage = () => {
     if (refresh) handleGetBeers();
   }
 
-  const handlePaginate = (page) => {
-    console.log('handle paginate', page)
-    try {
-      //* nesse bloco ele realizava a paginacao dos dados salvos
-      //* para esse caso ele precisa buscar novamente pois nao temos todas os dados salvos
-      /*console.log('handlePaginate paginate:', paginate);
-      const init = page * perPage;
-      const end = init + perPage
-      console.log('handleGetBeers init:', init);
-      console.log('handleGetBeers end:', end);
-      const result = transacoesResponse.slice(init, end);
-      console.log('handleGetBeers result:', result);*/
-      //* apenas altera a pagina
+  const handlePaginate = (page) => { 
+    try { 
       setPaginate({
         ...paginate,
         currentPage: page
       })
-
-      // Set resultado inicial
-      //setTransacoesList(result);
     } catch (error) {
       console.log(error);
     }
@@ -214,23 +228,13 @@ const BeersPage = () => {
   const handleExitSession = () => {
     sessionStorage.clear();
     history.push('/login')          
+  } 
+ 
+  const renderPages = () => {
+    return listPages;
   }
 
-  const renderPaginate = () => {
-    let listPages = [];
-    for (let index = 1; index <= paginate.pages; index++) { 
-      listPages.push( 
-        <PaginateItem 
-          key={index} 
-          className={paginate.currentPage === index ? 'selected' : ''} 
-          onClick={() => handlePaginate(index)}
-        > {index}
-        </PaginateItem> 
-      )
-    }
-    return listPages
-  }
-
+  /*image*/
   const renderImage = (image) => {
     if (image) {
       return (<ContainerTransacoesListWrapperFoto src={image} />)
@@ -238,6 +242,27 @@ const BeersPage = () => {
     return (<ContainerTransacoesListWrapperFoto className="noPhoto" src="http://localhost:3000/no-photo.jpg" alt="Sem foto"  />)
   }
 
+  //form 
+  const handleChange = (e) => {
+    let value = e.target.value.trim();
+    if (e.target.type === 'text') {
+      value = value.replace(/ /g,"_");
+    } 
+    setFormData({
+      ...formData, 
+      [e.target.name]: value.trim()
+    });
+  };
+
+  const handleSubmitSearch = (event) => {
+    console.log('A name was submitted: ' + JSON.stringify(formData));
+    handleGetBeers();
+    event.preventDefault();
+  }
+
+  useEffect(() => {
+      console.log('formData', formData)
+  }, [formData])
   /**
    * Render
   */
@@ -250,7 +275,101 @@ const BeersPage = () => {
             <Brand src="http://localhost:3000/logo192.png" alt="Brand" />
           </HeaderColLeft> 
           <HeaderColCenter>
-            <Search placeholder="Pesquisar..." onChange={(e) => setSearchValue(e?.target?.value)}/>
+            <form onSubmit={handleSubmitSearch}>
+              <SearchBox>
+                <Search 
+                  type="number" 
+                  placeholder="abv_gt"
+                  name="abv_gt" 
+                  onChange={handleChange}
+                />
+                <Search 
+                  type="number" 
+                  placeholder="abv_lt"
+                  name="abv_lt"
+                  onChange={handleChange}
+                />
+                <Search 
+                  type="number" 
+                  placeholder="ibu_gt" 
+                  name="ibu_gt"
+                  onChange={handleChange}
+                />
+              </SearchBox>
+              <SearchBox>
+                <Search 
+                  type="number" 
+                  placeholder="ibu_lt" 
+                  name="ibu_lt"
+                  onChange={handleChange}
+                />
+                <Search
+                  type="number" 
+                  placeholder="ebc_gt" 
+                  name="ebc_gt"
+                  onChange={handleChange}
+                />
+                <Search 
+                  type="number"
+                  placeholder="ebc_lt"
+                  name="ebc_lt" 
+                  onChange={handleChange}
+                />
+              </SearchBox>
+              <SearchBox>
+                <Search
+                  type="text" 
+                  placeholder="beer_name"
+                  name="beer_name" 
+                  onChange={handleChange}
+                />
+                <Search 
+                  type="text" 
+                  placeholder="yeast"
+                  name="yeast" 
+                  onChange={handleChange}
+                />
+                <Search
+                  type="text"
+                  placeholder="hops"
+                  name="hops" 
+                  onChange={handleChange}
+                />
+                <Search 
+                  type="text"
+                  placeholder="malt"
+                  name="malt" 
+                  onChange={handleChange}
+                />
+                <Search 
+                  type="text"
+                  placeholder="food"
+                  name="food" 
+                  onChange={handleChange}
+                />
+                <Search 
+                  type="text" 
+                  placeholder="ids" 
+                  name="ids"
+                  onChange={handleChange}
+                />
+              </SearchBox>
+              <SearchBox>
+                <Search
+                  type="date"
+                  placeholder="brewed_before"
+                  name="brewed_before" 
+                  onChange={handleChange}
+                />
+                <Search
+                  type="date"
+                  placeholder="brewed_after"
+                  name="brewed_after"
+                  onChange={handleChange}
+                />
+              </SearchBox>
+              <Button type="submit">Pesquisar</Button>
+            </form>
             {resultSearch && (
               <ResultSearch onClick={() => handleOpenModalCrud('read', resultSearch)}>
                 <ResultSearchTitle>{resultSearch?.name}</ResultSearchTitle>
@@ -264,7 +383,7 @@ const BeersPage = () => {
               <ProfileUser>{username }</ProfileUser>
              </Profile>
              <BodyHeaderColRight>
-              <Button onClick={() => handleExitSession()}>Sair</Button>
+              <Button style={{height: '20px'}} onClick={() => handleExitSession()}>Sair</Button>
             </BodyHeaderColRight>
           </HeaderColRight>
         </Header> 
@@ -291,9 +410,9 @@ const BeersPage = () => {
               </ContainerTransacoesListWrapper>
             ))}
           </ContainerTransacoesList>
-          {paginate?.pages > 1 && (
+          {paginate?.currentPage > 0 && (
             <Paginate className='paginate'> 
-              {renderPaginate()}
+              {renderPages()}
             </Paginate>
           )}
         </Body>
@@ -312,13 +431,3 @@ const BeersPage = () => {
 }
 
 export default BeersPage;
- 
-/*
- {!!paginate?.pages?.length && (
-    <Paginate className='paginate'>
-      {paginate.pages.map((item, i) => (
-        <PaginateItem key={i} className={paginate.currentPage === item.text ? 'selected' : ''} onClick={() => handlePaginate(item.text)}>{item.text}</PaginateItem>
-      ))}
-    </Paginate>
-  )}
-*/ 

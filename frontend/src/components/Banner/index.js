@@ -17,10 +17,8 @@ const Banner = ({handleClick}) => {
   const [productRandom, setProductRandom] = useState();  
 
   const getProducts = async() => {
-    const response = await GET(`api/v1/beers/random`); 
-    console.log('getprodu', response)
-    const responseResolved = await response.json(); 
-    console.log('getprodu', responseResolved)
+    const response = await GET(`api/v1/beers/random`);  
+    const responseResolved = await response.json();  
     return responseResolved;
   }
  

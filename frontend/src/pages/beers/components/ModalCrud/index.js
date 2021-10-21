@@ -24,8 +24,7 @@ const ModalCrud = ({
   handleClose,
   dataTransaction,
   handleType
-}) => {
-  console.log('datatransaction', dataTransaction?.name)
+}) => { 
   const [empresaDetail, setEmpresaDetail] = useState({
     name: dataTransaction?.name,
     documentNumber: dataTransaction?.documentNumber,
