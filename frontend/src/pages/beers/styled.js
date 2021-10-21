@@ -130,10 +130,11 @@ export const Body = styled.div`
 
 export const BodyHeader = styled.div`
   /* border: 2px solid blue; */
+  display:flex;
   width: 100%; 
   height: 45px;
   margin: 10px 0;
-  padding: 0 10px;
+  padding: 0 30px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -153,6 +154,7 @@ export const BodyHeaderColRight = styled.div`
   justify-content: flex-end;
   width: 50%;
   flex-basis: 50%;
+  align-items: center;
 `;
 
 export const BodyHeaderTitle = styled.h1`
@@ -296,6 +298,7 @@ export const Paginate = styled.div`
   width: 100%;
   flex-basis: 100%;
   margin: 22px 0;
+  padding: 0 30px;
 `;
 
 export const PaginateItem = styled.div`
@@ -359,4 +362,16 @@ export const LabelInput = styled.label`
   color: #6e6e6e;
   font-size: 14px;
   line-height: 22px;
+`;
+
+export const BoxSelect = styled.select`
+  height: 31px;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: #fff;
+`;
+
+export const LabelPerPage = styled.label` 
+  font-size: 12px;
+  padding: 10px;
 `;

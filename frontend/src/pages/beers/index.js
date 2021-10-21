@@ -38,6 +38,8 @@ import {
   ResultSearchSobre,
   MessageLabel,
   LabelInput,
+  LabelPerPage,
+  BoxSelect,
 } from './styled';
 
 import ModalCrud from './components/ModalCrud';
@@ -83,15 +85,14 @@ const BeersPage = () => {
   */
 
   const [paginate, setPaginate] = useState({
+    perPage: 40,
     currentPage: 0,  
   });
 
-  const [TransacoesList, setTransacoesList] = useState({
+  const [TransacoesList, setTransacoesList] = useState({ 
       listProducts: [],
       listPages: null
-  }); 
-
-  const perPage = 40;
+  });  
 
   const getBeers = async(page) => {
     try {
@@ -107,7 +108,7 @@ const BeersPage = () => {
           queryString = `&${searchParams.toString()}`
         } 
       }  
-      const response = await GET(`api/v1/beers?page=${page}&per_page=${perPage}${queryString}`);
+      const response = await GET(`api/v1/beers?page=${page}&per_page=${paginate?.perPage}${queryString}`);
       const responseResolved = await response.json(); 
       return responseResolved;
     } catch (error) {
@@ -285,10 +286,19 @@ const BeersPage = () => {
       handlePaginate(1);
     } 
   }, [formData])
+
+
+  const handlePerPages = (numPages) => { 
+    setPaginate({
+      ...paginate,
+      currentPage: 1,
+      perPage: numPages
+    })
+  }
+ 
   /**
    * Render
-  */
-
+  */ 
   const renderPagesProducts = () => {
     if (TransacoesList?.listProducts.length <= 0) {
       return (<MessageLabel>Nenhum produto encontrado!</MessageLabel>)
@@ -433,15 +443,26 @@ const BeersPage = () => {
           <Banner handleClick={handleOpenModalCrud}/>
           <BodyHeader>
             <BodyHeaderColLefth>
-              <BodyHeaderTitle>MyTapp</BodyHeaderTitle>
+              <BodyHeaderTitle>MyTapp</BodyHeaderTitle> 
             </BodyHeaderColLefth>
+            <BodyHeaderColRight>
+              <LabelPerPage>Total por página: </LabelPerPage>
+              <BoxSelect name="perPage" onChange={(e) => handlePerPages(e.target.value)}>
+                <option value="8">8</option>
+                <option value="16">16</option>
+                <option value="32">32</option>
+                <option value="40">40</option>
+                <option value="60">60</option>
+                <option value="80">80</option>
+              </BoxSelect>
+            </BodyHeaderColRight>
           </BodyHeader> 
           
           <ContainerTransacoesList>
             {renderPagesProducts()} 
           </ContainerTransacoesList>
           {paginate?.currentPage > 0 && (
-            <Paginate className='paginate'> 
+            <Paginate className='paginate'>   
               {renderPages()}
             </Paginate>
           )}
