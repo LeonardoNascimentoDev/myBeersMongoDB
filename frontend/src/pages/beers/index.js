@@ -37,6 +37,7 @@ import {
   ResultSearchTitle,
   ResultSearchSobre,
   MessageLabel,
+  LabelInput,
 } from './styled';
 
 import ModalCrud from './components/ModalCrud';
@@ -105,7 +106,7 @@ const BeersPage = () => {
         if (searchParams.toString()) {
           queryString = `&${searchParams.toString()}`
         } 
-      } 
+      }  
       const response = await GET(`api/v1/beers?page=${page}&per_page=${perPage}${queryString}`);
       const responseResolved = await response.json(); 
       return responseResolved;
@@ -245,8 +246,7 @@ const BeersPage = () => {
     history.push('/login')          
   } 
  
-  const renderPages = () => {
-    console.log('asdfasd', TransacoesList?.listPages)
+  const renderPages = () => { 
     return TransacoesList?.listPages;
   }
 
@@ -264,6 +264,11 @@ const BeersPage = () => {
     if (e.target.type === 'text') {
       value = value.replace(/ /g,"_");
     } 
+    else if (e.target.type === 'month' && value) { 
+      let data = value
+      data = value.split('-');
+      value = data[1]+"-"+data[0]
+    }  
     setFormData({
       ...formData, 
       [e.target.name]: value.trim()
@@ -391,14 +396,16 @@ const BeersPage = () => {
                 />
               </SearchBox>
               <SearchBox>
+                <LabelInput>Brewed Before</LabelInput>
                 <Search
-                  type="date"
+                  type="month"
                   placeholder="brewed_before"
                   name="brewed_before" 
                   onChange={handleChange}
                 />
+                <LabelInput>Brewed After</LabelInput>
                 <Search
-                  type="date"
+                  type="month"
                   placeholder="brewed_after"
                   name="brewed_after"
                   onChange={handleChange}

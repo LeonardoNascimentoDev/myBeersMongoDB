@@ -111,8 +111,9 @@ export const Search = styled(Input)`
   &[type=text] {
     width: 250px;
   }
-  &[type=date] {
+  &[type=month] {
     width: 200px;
+    placeholder: red;
   }
 `;
 
@@ -351,3 +352,11 @@ export const MessageLabel = styled.label`
   justify-content: center;
 `;
  
+
+export const LabelInput = styled.label`
+  padding: 10px; 
+  width: fit-content; 
+  color: #6e6e6e;
+  font-size: 14px;
+  line-height: 22px;
+`;
